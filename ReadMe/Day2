@@ -1,0 +1,17 @@
+1.
+Installation de docker via le script fourni par Docker TM
+Oui mon utilisateur peut lancer docker en ajoutant le user actuelle dans legroupe docker
+Question?
+Il n' y a pas vraiment de securite excepte que l'on evite de taper sudo a chaque commande.  Le user dans le group docker a qd meme acces au socket donc c'est pas plus securitaire
+
+2.
+Run va creer un conteneur a partir d'une image; Start va lui redemarrer un conteneur dexistant
+Les fichiers des conteur se trouvent dans le dossier /var/lib/docker. SI on supprime le contenaire les modif faite sur celui ci ne seront pas recuperables. Mais son image restera
+DOcker dontionne avec un systeme de couche commme des instances. On peut aussi crer des dossier persistant sur sa machine afin de conserver de fichier.
+L'image se trouve sur le disque c'est la base sur laquelle elcontainer va se creer. LOrsque que le container est creer il va creer une couche  et pas recreer l'instance a partir de toute l'image. a chaque modification une couche supplementaire sera apporte.
+Question ?
+Oui la modification sera toujours la l'instance est just stopper et pas supprimer. 
+Non car la nouvelle ionstance se fera a partir de l'image de base et aura une nouvelle couche si on reprend mon exemplee.
+
+3.
+
