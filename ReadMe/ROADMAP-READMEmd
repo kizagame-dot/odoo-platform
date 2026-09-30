@@ -1,0 +1,199 @@
+# 🚀 ROADMAP DevOps × Odoo — 11 chapitres, un seul projet
+
+> **Profil :** 35 ans, CCNA, AWS Cloud Practitioner, très bonnes bases web dev.
+> **Cible :** DevOps / Cloud Ops / Support technique Odoo.
+> **Matériel :** PC Ubuntu + Raspberry Pi 4 (8 Go, Raspberry Pi OS Lite).
+> **Principe :** un projet fil rouge qui grandit. Des specs, pas des tutoriels.
+
+---
+
+## 📊 Progression
+
+```text
+J1   ░░░░░░░░░░░░░░░░░░░░   0%   Bootstrap Pi4 + repo
+J2   ░░░░░░░░░░░░░░░░░░░░   0%   Docker de A à Z
+J3   ░░░░░░░░░░░░░░░░░░░░   0%   Odoo fonctionnel
+J4   ░░░░░░░░░░░░░░░░░░░░   0%   Odoo en Docker Compose
+J5   ░░░░░░░░░░░░░░░░░░░░   0%   Développement Odoo
+J6   ░░░░░░░░░░░░░░░░░░░░   0%   Ansible + sécurité
+J7   ░░░░░░░░░░░░░░░░░░░░   0%   CI/CD GitHub Actions
+J8   ░░░░░░░░░░░░░░░░░░░░   0%   Kubernetes (k3s)
+J9   ░░░░░░░░░░░░░░░░░░░░   0%   AWS + Terraform
+J10  ░░░░░░░░░░░░░░░░░░░░   0%   Observabilité / backups
+J11  ░░░░░░░░░░░░░░░░░░░░   0%   Job readiness
+```
+
+---
+
+## 🎯 Le projet fil rouge : `odoo-platform`
+
+```text
+Client → Nginx (TLS) → Odoo (+ module custom) → PostgreSQL
+              ↑
+  GitHub Actions · Monitoring · Backups
+  Pi4 : Docker Compose puis k3s (mini-cloud)
+  AWS : même stack via Terraform
+```
+
+```text
+odoo-platform/
+├── README.md
+├── docker/            (Dockerfile, compose, nginx)
+├── addons/            (ton module Odoo)
+├── k8s/               (manifests / Helm)
+├── infra/
+│   ├── ansible/       (Pi4)
+│   └── terraform/     (AWS)
+├── .github/workflows/
+├── monitoring/
+├── scripts/           (backup / restore)
+└── docs/
+    ├── architecture.md
+    ├── runbook.md
+    ├── odoo-notes.md
+    ├── docker-notes.md
+    ├── compose-vs-k8s.md
+    └── incidents/     (postmortems nés du projet)
+```
+
+---
+
+## 🧭 Règles de fonctionnement
+
+1. **Commits quotidiens** avec des messages propres. L'historique Git fait partie de la preuve.
+2. **Un incident = un fichier** dans `docs/incidents/` dès qu'il arrive (symptôme, investigation, cause, fix). Aucun n'est provoqué artificiellement.
+3. **Claude = tech lead, pas guide.** Tu envoies ta solution ou ton blocage, il fait la revue et pose les questions d'entretien correspondantes.
+4. **Aucune commande fournie.** Tu cherches dans la doc officielle. Tu bloques 20-30 min, puis tu demandes un indice.
+5. **Tu peux ralentir.** Un chapitre peut prendre 2 jours (surtout J2, J5, J8).
+6. **Profondeur > vitesse.** Un projet solide vaut mieux qu'un tas de labs.
+
+---
+
+## 📅 Les chapitres
+
+### J1 — Bootstrap du Pi4 et du repo
+
+**Objectif :** un environnement de travail propre, base du projet.
+**Livrables :** Pi à jour en 64 bits, SSH par clé, IP fixe, Git configuré, repo `odoo-platform` avec sa structure, premier README.
+**Validé quand :** tu travailles sur le Pi à distance depuis ton PC Ubuntu et le premier commit est poussé.
+
+---
+
+### J2 — Docker de A à Z (les fondations)
+
+**Objectif :** comprendre Docker en profondeur, pas seulement `docker run`.
+**Notions :** image vs conteneur, couches et cache, Dockerfile, réseaux (bridge, DNS interne), volumes vs bind mounts, variables d'environnement, healthchecks, logs, Docker Compose.
+**Livrables :** une mini-app web + base de données (au choix) conteneurisée, avec Dockerfile multi-stage, compose, volume persistant et healthcheck. Une page `docs/docker-notes.md` avec **tes** explications.
+**Validé quand :** tu expliques à l'oral ce qui se passe entre `docker compose up` et l'app accessible, et pourquoi les données survivent à un `down`.
+
+---
+
+### J3 — Odoo fonctionnel : comprendre le produit
+
+**Objectif :** parler Odoo comme un consultant.
+**Livrables :** une instance Odoo (Docker de démo) avec **une entreprise fictive complète** :
+- CRM : lead → opportunité → devis
+- Ventes : devis → commande
+- Achats : commande fournisseur, réapprovisionnement
+- Inventaire : entrepôt, stock, livraison partielle
+- Facturation : facture, paiement
+- Utilisateurs, groupes, droits d'accès
+- Notions d'**apps**, de **modules** et de **base de données** Odoo
+
+**Scénario imposé :** stock insuffisant pour une commande → achat fournisseur déclenché → livraison partielle → facture.
+**Validé quand :** tu déroules le scénario de bout en bout sans aide et tu rédiges `docs/odoo-notes.md` (architecture : serveur, base, filestore, addons ; rôle de chaque app).
+
+---
+
+### J4 — Odoo en production-like avec Docker Compose
+
+**Objectif :** la stack Odoo + PostgreSQL + Nginx, reproductible.
+**Livrables :** compose + `.env.example`, reverse proxy fonctionnel (mode proxy, longpolling/websocket), volumes pour la base et le filestore, `odoo.conf` versionné.
+**Validé quand :** `git clone` + une commande = Odoo accessible ; les données survivent à `down` puis `up`.
+**Point Pi4 :** vérifie le support **arm64** de l'image Odoo. Sinon, construis ta propre image.
+
+---
+
+### J5 — Développement Odoo
+
+**Objectif :** comprendre Odoo de l'intérieur (l'atout pour candidater chez eux).
+**Notions :** structure d'un module (manifest, models, views, security), ORM, champs et relations, vues XML (form, list, kanban), actions et menus, droits (ACL, record rules), héritage.
+**Livrables :** un module custom sur un cas réel (suivi de tickets support ou gestion de parc IT) + un **script Python externe** qui lit/écrit via XML-RPC/JSON-RPC.
+**Validé quand :** le module s'installe depuis zéro dans `addons/` et le script fonctionne.
+
+---
+
+### J6 — Infrastructure as Code du Pi (Ansible + sécurité)
+
+**Objectif :** provisionner le Pi sans rien faire à la main.
+**Livrables :** playbook Ansible (utilisateurs, SSH durci, firewall, Docker, déploiement de la stack), TLS sur Nginx, accès par clé uniquement.
+**Validé quand :** réinstallation du Pi from scratch, puis une seule commande Ansible ramène toute la plateforme.
+
+---
+
+### J7 — CI/CD avec GitHub Actions
+
+**Objectif :** un push sur `main` déploie.
+**Livrables :** pipeline lint → build de l'image → test d'installation du module → déploiement sur le Pi (runner self-hosted ou SSH), rollback documenté.
+**Validé quand :** un commit cassé est bloqué par le pipeline, et tu sais revenir à la version précédente.
+
+---
+
+### J8 — Kubernetes avec k3s
+
+**Objectif :** comprendre l'orchestration en la faisant tourner sur ton Pi.
+**Notions :** pod, deployment, service, ingress, configmap, secret, PV/PVC, statefulset (PostgreSQL), probes, requests/limits, namespace.
+**Livrables :** la stack Odoo sur k3s (manifests dans `k8s/`, ou Helm), ingress avec TLS, stockage persistant.
+**Validé quand :** tu tues un pod, il revient, les données restent. Tu écris `docs/compose-vs-k8s.md` (quand utiliser l'un ou l'autre, et pourquoi).
+**Réalisme :** k3s + Odoo + PostgreSQL tient sur 8 Go, mais ne fais pas tourner Compose en parallèle.
+
+---
+
+### J9 — AWS avec Terraform
+
+**Objectif :** la même stack dans le cloud, en code (tu valorises ta certif AWS).
+**Livrables :** Terraform pour VPC, subnets, security groups, EC2 (Docker) ou ECS, IAM en moindre privilège, S3 pour les backups, CloudWatch. Un comparatif **Pi vs AWS** (coûts, limites, équivalences).
+**Validé quand :** `apply` puis `destroy` propres.
+**Attention :** budget alert actif avant tout, et vérifie les conditions actuelles du Free Tier.
+
+---
+
+### J10 — Observabilité, backups, fiabilité
+
+**Objectif :** exploiter la plateforme comme en production.
+**Livrables :** monitoring (Prometheus + Grafana, ou Uptime Kuma en version légère), alerte sur service down, backup automatisé PostgreSQL + filestore Odoo, **restore testé**, audit sécurité rapide (ports, secrets, images).
+**Validé quand :** tu supprimes la base, tu restaures, et Odoo revient avec ses données.
+
+---
+
+### J11 — Finalisation et job readiness
+
+**Livrables :**
+- README soigné avec schéma d'architecture
+- Runbook et 4 à 6 postmortems réels
+- Projet épinglé sur GitHub
+- CV technique centré sur `odoo-platform`
+- Pitch de 3 minutes
+- Simulation d'entretien (recruteur DevOps ou Odoo)
+
+---
+
+## 🏁 Compétences finales
+
+```text
+Docker / Compose      ████████████████████
+Kubernetes (k3s)      ████████████████████
+Odoo (fonctionnel)    ████████████████████
+Odoo (technique)      ████████████████████
+CI/CD                 ████████████████████
+IaC (Ansible/TF)      ████████████████████
+Cloud AWS             ████████████████████
+Monitoring / Backups  ████████████████████
+Troubleshooting       ████████████████████
+```
+
+Fil conducteur :
+
+```text
+UNDERSTAND → BUILD → BREAK → TROUBLESHOOT → FIX → DOCUMENT
+```

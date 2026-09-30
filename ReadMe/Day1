@@ -1,0 +1,101 @@
+1. Etat des Lieux
+
+hostname : raspberrypi | hostnamectl
+OS : Debian GNU/Linux VERSION = 13.6  | /etc/os-release
+Architecture 32/64 : Arm64  | hostnamectl
+VERSION DU NOYAU : Linux 6.18.39+rpt-rpi-v8 | hostnamectl
+Disque dur : 64gb | lslbk
+Ram : 4gb | free
+NIc card : eth0 192.168.1.39  ifconfig
+User : K*** | id
+
+2. Mise ajour systemme
+
+apt-get update - upgrade
+uptime
+timedatectl set-timezone - list-timezone
+
+3. SSH Key Ubuntu
+
+1. La cle privé qui se trouve dans .ssh/ de Ubuntu
+2. Sur le PI il contient toute les cle publique des clients connu
+3. COntien l'empreint de la cle publique du server ssh. Afin que le client verifie que c'est bien le meme serveur.
+Il protegfe des attaques du milieu, ceux qui pourraient se faire passer pour le serveur ssh
+4. La passphrase donne une securite en plus. La cles est chiffre avec cette passphrase pour eviter que si on attrappe ta cle prive , il faut toujours avoir un passphrase pour la dechiffrer
+
+4. Durcissemnt SSH
+
+-Configuration du fichier /etc/ssh/sshd_config 
+    PasswordAuthentication No
+    PermitROoLOgin no
+-Verifier si les configs sont correcte avant de relancer le server
+    sshd -t
+    systemctl restart ssh
+
+5. IP FIXe
+
+   Configurer lors de l'istallation de L'os mais imlpossible de trouver le service qui s'occupe d'attribuer cette ip = 192.168.1.39
+
+6. Git / Giuthub
+    ON se connecte en ssh a via 2 machine differentes. Le serveur ssh doit avoir son fichier know_hosts avec les cles publique de chaque machines
+
+7. odoo-pplatform repo
+
+
+1.at /proc/cpuinfo
+processor	: 0
+BogoMIPS	: 108.00
+Features	: fp asimd evtstrm crc32 cpuid
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd08
+CPU revision	: 3
+
+processor	: 1
+BogoMIPS	: 108.00
+Features	: fp asimd evtstrm crc32 cpuid
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd08
+CPU revision	: 3
+
+processor	: 2
+BogoMIPS	: 108.00
+Features	: fp asimd evtstrm crc32 cpuid
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd08
+CPU revision	: 3
+
+processor	: 3
+BogoMIPS	: 108.00
+Features	: fp asimd evtstrm crc32 cpuid
+CPU implementer	: 0x41
+CPU architecture: 8
+CPU variant	: 0x0
+CPU part	: 0xd08
+CPU revision	: 3
+
+Revision	: c03115
+Serial		: 100000001e520f7c
+Model		: Raspberry Pi 4 Model B Rev 1.5
+kiza@raspberrypi:~ $ total_mem
+-bash: total_mem: command not found
+kiza@raspberrypi:~ $ vcgencmd get_config total_mem
+total_mem=4096
+kiza@raspberrypi:~ $ free -h
+               total        used        free      shared  buff/cache   available
+Mem:           3.7Gi       875Mi       2.3Gi       153Mi       749Mi       2.8Gi
+Swap:          2.0Gi          0B       2.0Gi
+
+2. Apres recherche j'ai decider de configurer  le Network Manager  avec nmcli  sudo nmcli connection modify "Wired connection 1" ipv4.addresses 192.168.1.39/24
+
+sudo nmcli connection modify "Wired connection 1" ipv4.gateway 192.168.1.1
+sudo nmcli connection modify "Wired connection 1" ipv4.dns "192.168.1.1,1.1.1.1"
+sudo nmcli connection modify "Wired connection 1" ipv4.method manual
+sudo nmcli connection up "Wired connection 1"
+3.
+Il faut  car on ne voudrait pas que quelqun ce mette au milieur et ce fasse passer pour une des machines. Aussi github doit savior qui est derriere et donc l'empreinte est differente
